@@ -5,34 +5,29 @@ Created on Mon Aug 16 08:18:08 2021
 @author: zongsing.huang
 """
 
-# =============================================================================
-# 修改alpha, beta, delta的更新方式，參考自下面連結的
-# https://github.com/7ossam81/EvoloPy/blob/master/optimizers/GWO.py
-# 我對於上連結做法的解析為，該作法有類似PSO的記憶性概念(pbest)
-# 效果比original GWO更好些
-# =============================================================================
 
 import numpy as np
 import matplotlib.pyplot as plt
 
+np.random.seed(42)
+
 def fitness(X):
-    # Rosenbrock
     if X.ndim==1:
         X = X.reshape(1, -1)
     
-    left = X[:, :-1].copy()
-    right = X[:, 1:].copy()
-    F = np.sum(100*(right - left**2)**2 + (left-1)**2, axis=1)
+    optimal_val = np.array([215, 66, 96, 566, 180, 200, 113, 141, 37, 96, 0])
+    
+    F = np.sum( np.abs(X-optimal_val) , axis=1)
     
     return F
 
 #%% 參數設定
 P = 30
-D = 30
+D = 11
 G = 500
 T = 100
-ub = 30*np.ones([P, D])
-lb = -30*np.ones([P, D])
+ub = [255, 255, 255, 1000, 800, 200, 200, 200, 200, 200, 200]*np.ones([P, D])
+lb = 0*np.ones([P, D])
 a_max = 2
 statistical_experiment = np.zeros(T)
 loss_curve = np.zeros([T, G])
@@ -56,14 +51,14 @@ for t in range(T):
         for i in range(P):
             # Step2-1. 更新F_alpha
             if F[i]<F_alpha:
-                X_alpha, X_beta, X_delta = X[i], X_alpha, X_beta
-                F_alpha, F_beta, F_delta = F[i], F_alpha, F_beta
+                X_alpha = X[i]
+                F_alpha = F[i]
             # Step2-2. 更新F_beta
-            elif F[i]>F_alpha and F[i]<F_beta:
-                X_beta, X_delta = X[i], X_beta
-                F_beta, F_delta = F[i], F_beta
+            elif F[i]<F_beta:
+                X_beta = X[i]
+                F_beta = F[i]
             # Step2-3. 更新F_delta
-            elif F[i]>F_alpha and F[i]>F_beta and F[i]<F_delta:
+            elif F[i]<F_delta:
                 X_delta = X[i]
                 F_delta = F[i]
         loss_curve[t, g] = F_alpha
@@ -100,7 +95,7 @@ for t in range(T):
     
 #%% 作畫
 plt.figure()
-plt.title('EvoloPy')
+plt.title('Original')
 plt.plot(loss_curve.mean(axis=0))
 plt.grid()
 plt.xlabel('Iteration')

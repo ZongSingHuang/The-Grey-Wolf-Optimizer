@@ -9,6 +9,8 @@ Created on Mon Aug 16 08:18:08 2021
 import numpy as np
 import matplotlib.pyplot as plt
 
+np.random.seed(42)
+
 def fitness(X):
     # Rosenbrock
     if X.ndim==1:
@@ -53,11 +55,11 @@ for t in range(T):
                 X_alpha = X[i]
                 F_alpha = F[i]
             # Step2-2. 更新F_beta
-            if F[i]<F_beta:
+            elif F[i]<F_beta:
                 X_beta = X[i]
                 F_beta = F[i]
             # Step2-3. 更新F_delta
-            if F[i]<F_delta:
+            elif F[i]<F_delta:
                 X_delta = X[i]
                 F_delta = F[i]
         loss_curve[t, g] = F_alpha
